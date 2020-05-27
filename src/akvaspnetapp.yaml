@@ -39,7 +39,7 @@ spec:
         "beta.kubernetes.io/os": linux
       containers:
       - name: akvaspnetapp
-        image: abs-akvaspnetapp:v1.1.0
+        image: abhinabsarkar/abs-akvaspnetapp:v1.1.0
         resources:
           requests:
             cpu: 100m
