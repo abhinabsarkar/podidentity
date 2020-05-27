@@ -1,0 +1,22 @@
+# https://hub.docker.com/_/microsoft-dotnet-core
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+# Set the working directory in the container
+WORKDIR /source
+
+# copy csproj and restore as distinct layers
+COPY akvaspnetapp ./akvaspnetapp/
+# Build the app
+RUN dotnet restore akvaspnetapp/akvaspnetapp.csproj
+# Publish the app
+RUN dotnet publish akvaspnetapp/akvaspnetapp.csproj -c release -o /app --no-restore
+
+# final stage/image in the container having only the runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine AS runtime
+# Add bash
+RUN apk update && apk add bash
+# Add curl
+RUN apk --no-cache add curl
+# Copy the image built in previously into the folder app
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "akvaspnetapp.dll"]
