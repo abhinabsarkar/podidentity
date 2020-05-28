@@ -133,11 +133,21 @@ kubectl apply -f akvaspnetapp.yaml
 # Get the resources 
 kubectl get all
 ```
-The sample application deployed is accessing an Azure Key Vault under the context of Managed Identity. If the Managed Identity is configured, it returns the secret stored in the Azure Key Vault else it returns a message stating "Cannot access key vault". The dockerfile & application source code can be found [here.](https://github.com/abhinabsarkar/webapp-mi-keyvault/tree/master/src)
+The sample application deployed is accessing an Azure Key Vault under the context of Managed Identity. If the Managed Identity is configured, it returns the secret stored in the Azure Key Vault else it returns a message stating "Cannot access key vault". The dockerfile & application source code can be found [here.](/src)
 
-Test the application by browsing the External-IP of the service akvaspnetapp. If everything is configured correctly, then browsing the web page https://<External-IP>/keyvault should list the value stored in the Azure Key Vault.
+Test the application by browsing the External-IP of the service akvaspnetapp. If everything is configured correctly, then browsing the web page https://`<External-IP>`/keyvault should list the value stored in the Azure Key Vault.
 
 ![Alt text](/images/aks-mi-access-keyvault.jpg)
+
+To test the access of the pod identity on the keyvault, go to the Azure Key Vault from the portal --> Access Policies --> Remove the Get & List "Secret Permissions". Restart the pods by running the below command. 
+```bash
+# Restart the pod
+kubectl scale deployment akvaspnetapp --replicas=0
+kubectl scale deployment akvaspnetapp --replicas=1
+```
+When the application is browsed again, it should respond with **403 Forbidden**.
+
+![Alt text](/images/aks-mi-no-access-keyvault.jpg)
 
 To test if the appsettings.json configuration is read from configmap, change the value of the EnvironmentConfig.dbCredentials to say db-credentials1 in akvaspnetapp.yaml & restart the pod. (Restarting is required because the configurations don't reload in this sample code)
 ```bash
